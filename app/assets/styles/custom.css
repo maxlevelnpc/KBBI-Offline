@@ -1,0 +1,78 @@
+QPushButton#discoverButtons {
+    background-color: #DDDDDD;
+    color: #084ee5;
+    border-radius: 2px;
+    padding: 2px;
+}
+QPushButton#discoverButtons:hover {
+    background-color: #5555FF;
+    color: #f9f9f9;
+}
+
+
+QPushButton#historyButtons {
+    background-color: #4186F6;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 3px 6px;
+}
+QPushButton#historyButtons:hover {
+    background-color: #1c63d5;
+    color: #f9f9f9;
+    padding-bottom: 2px;
+}
+
+
+QPushButton#openLink {
+    background-color: transparent;
+    color: #000000;
+    text-align: left;
+    padding: 0px;
+}
+QPushButton#openLink:hover {
+    color: #1c63d5;
+}
+
+
+QPushButton#toolBtn {
+    background-color: #ffffff;
+    border: 2px solid #7e7979;
+}
+QPushButton#toolBtn:hover {
+    border: 2px solid #3673ee;
+}
+
+
+QPushButton#menuBtn {
+    background-color: transparent;
+    padding: 6px;
+}
+QPushButton#menuBtn:hover {
+    border: 2px solid #3673ee;
+}
+QPushButton#menuBtn::menu-indicator {
+    image: none;
+    width: 0px;
+}
+
+
+QPushButton#transIconBtn {
+    background-color: transparent;
+}
+QPushButton#transIconBtn:hover {
+    background-color: transparent;
+    padding-top: 2px;
+}
+
+
+QLabel#stats {
+    font-size: 10px;
+}
+
+
+QLabel#toast {
+    background-color: rgba(40, 40, 40, 220);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+}
