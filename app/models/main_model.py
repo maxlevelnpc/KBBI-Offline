@@ -12,19 +12,20 @@ class MainModel:
         self.config_service = config_service
         self.db_service = db_service
 
-        self.bookmarks: list
-        self.total_search: int
+        self.bookmarks: list[str] = []
+        self.total_search: int = 0
         self.total_search_session: int = 0
-        self.history: list[str]
+        self.history: list[str] = []
 
         self._set_settings()
         self.db_service.initialize()
 
     def _set_settings(self) -> None:
         data = self.config_service.load_config_data()
-        self.bookmarks = data.get("bookmarks")
-        self.total_search = data.get("total_search")
-        self.history = data.get("history")
+        if data is not None:
+            self.bookmarks = data.get("bookmarks")
+            self.total_search = data.get("total_search")
+            self.history = data.get("history")
 
     def get_definitions(self, word: str) -> tuple[bool, str]:
         """
