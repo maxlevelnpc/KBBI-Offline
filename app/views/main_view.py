@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
 )
 
 from app.widgets import SearchBar, FlowLayout, BookmarkDialog, ToastLabel
+from app.core.config import MAX_HISTORY, MAX_EXPLORE_WORDS
 
 if TYPE_CHECKING:
     from app.core.bus import EventBus
@@ -22,8 +23,8 @@ class MainView(QMainWindow):
         super().__init__()
         self.bus = bus
 
-        self.explore_words: list[QPushButton] = []
-        self.history_words: list[QPushButton] = []
+        self.explore_word_btns: list[QPushButton] = []
+        self.history_word_btns: list[QPushButton] = []
 
         self.setupUI()
 
@@ -37,10 +38,16 @@ class MainView(QMainWindow):
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(20, 20, 20, 20)
 
+        # floating widget. add to parent
         self.toast_label = ToastLabel(self)
+
+        # Toplevel!
+        # since it just simple window i just put it here hehe
+        self.bookmark_dialog = BookmarkDialog(self, self.bus)
 
         # ////////////////////////////////////////////////////////////////////////////////////////////////
         
+        # +++ Searchbar area
         self.option_btn = QPushButton()
         self.option_btn.setIcon(QIcon(":/app/assets/icons/menu.png"))
         self.option_btn.setIconSize(QSize(22, 22))
@@ -54,13 +61,38 @@ class MainView(QMainWindow):
         self.option_btn.setMenu(self.option_menu)
 
         self.searchbar = SearchBar()
-
         searchbar_layout = QHBoxLayout()
         searchbar_layout.addWidget(self.option_btn)
         searchbar_layout.addWidget(self.searchbar)
 
-        # ---
+        # ////////////////////////////////////////////////////////////////////////////////////////////////
 
+        # +++ History and search counter area
+        self.history_title = QLabel("Terakhir Dicari")
+        self.history_title.setStyleSheet("font-weight: bold;")
+        self.history_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+        self.stats_label = QLabel("Pencarian sesi ini: <b>0</b>\tTotal pencarian: <b>0</b>")
+        self.stats_label.setObjectName("stats")
+        
+        stats_layout = QHBoxLayout()
+        stats_layout.addWidget(self.history_title)
+        stats_layout.addStretch()
+        stats_layout.addWidget(self.stats_label)
+
+        history_layout = FlowLayout()
+        history_layout.setSpacing(2)
+        for _ in range(MAX_HISTORY):
+            history_btn = QPushButton("")
+            history_btn.setObjectName("historyButtons")
+            history_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.history_word_btns.append(history_btn)
+            history_layout.addWidget(history_btn)
+            history_btn.setVisible(False)
+
+        # ////////////////////////////////////////////////////////////////////////////////////////////////
+
+        # +++ Tool buttons area above content
         self.open_link = QPushButton("https://kbbi.web.id/")
         self.open_link.setIcon(QIcon(":/app/assets/icons/ext-link.png"))
         self.open_link.setIconSize(QSize(18, 18))
@@ -85,60 +117,42 @@ class MainView(QMainWindow):
         tools_layout.addWidget(self.add_bookmark_btn)
         tools_layout.addWidget(self.copy_content)
 
-        # ---
+        # ////////////////////////////////////////////////////////////////////////////////////////////////
 
-        self.history_title = QLabel("Terakhir Dicari")
-        self.history_title.setStyleSheet("font-weight: bold;")
-        self.history_title.setAlignment(Qt.AlignmentFlag.AlignLeft)
-
-        self.stats = QLabel("Pencarian sesi ini: <b>0</b>\tTotal pencarian: <b>0</b>")
-        self.stats.setObjectName("stats")
-        
-        stats_layout = QHBoxLayout()
-        stats_layout.addWidget(self.history_title)
-        stats_layout.addStretch()
-        stats_layout.addWidget(self.stats)
-
-        # ---
-
-        history_layout = FlowLayout()
-        history_layout.setSpacing(2)
-        for _ in range(10):
-            history_btn = QPushButton("")
-            history_btn.setObjectName("historyButtons")
-            history_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            self.history_words.append(history_btn)
-            history_layout.addWidget(history_btn)
-
+        # Content display
         self.result_display = QTextEdit()
         self.result_display.setReadOnly(True)
 
-        self.discover_title = QLabel("Kata untuk Dijelajahi")
-        self.discover_title.setStyleSheet("font-weight: bold;")
+        # ////////////////////////////////////////////////////////////////////////////////////////////////
 
-        self.refresh_discover_btn = QPushButton()
-        self.refresh_discover_btn.setIcon(QIcon(":/app/assets/icons/refresh.png"))
-        self.refresh_discover_btn.setIconSize(QSize(18, 18))
-        self.refresh_discover_btn.setFixedSize(26, 26)
-        self.refresh_discover_btn.setObjectName("transIconBtn")
-        self.refresh_discover_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        # Words to explore
+        self.explore_title = QLabel("Kata untuk Dijelajahi")
+        self.explore_title.setStyleSheet("font-weight: bold;")
+
+        self.refresh_explore_btn = QPushButton()
+        self.refresh_explore_btn.setIcon(QIcon(":/app/assets/icons/refresh.png"))
+        self.refresh_explore_btn.setIconSize(QSize(18, 18))
+        self.refresh_explore_btn.setFixedSize(26, 26)
+        self.refresh_explore_btn.setObjectName("transIconBtn")
+        self.refresh_explore_btn.setCursor(Qt.CursorShape.PointingHandCursor)
 
         explore_label_layout = QHBoxLayout()
         explore_label_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        explore_label_layout.addWidget(self.discover_title)
-        explore_label_layout.addWidget(self.refresh_discover_btn)
+        explore_label_layout.addWidget(self.explore_title)
+        explore_label_layout.addWidget(self.refresh_explore_btn)
 
         explore_btn_layout = FlowLayout()
         explore_btn_layout.setSpacing(2)
-        for _ in range(10):  # atur jumplah kata untuk dijelajahi. 10-20
-            button = QPushButton("")
-            button.setObjectName("discoverButtons")
-            button.setCursor(Qt.CursorShape.PointingHandCursor)
-            self.explore_words.append(button)
-            explore_btn_layout.addWidget(button)
+        for _ in range(MAX_EXPLORE_WORDS):
+            explore_btn = QPushButton("")
+            explore_btn.setObjectName("discoverButtons")
+            explore_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.explore_word_btns.append(explore_btn)
+            explore_btn_layout.addWidget(explore_btn)
 
-        # ---
+        # ////////////////////////////////////////////////////////////////////////////////////////////////
 
+        # Add everything too main layout
         main_layout.addLayout(searchbar_layout)
         main_layout.addLayout(stats_layout)
         main_layout.addLayout(history_layout)
@@ -147,10 +161,6 @@ class MainView(QMainWindow):
         main_layout.addWidget(self.result_display)
         main_layout.addLayout(explore_label_layout)
         main_layout.addLayout(explore_btn_layout)
-
-        # ////////////////////////////////////////////////////////////////////////////////////////////////
-
-        self.bookmark_dialog = BookmarkDialog(self, self.bus)
 
     def get_search_text(self) -> str:
         return self.searchbar.text().strip().lower()

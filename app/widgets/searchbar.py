@@ -10,8 +10,6 @@ class SearchBar(QFrame):
         super().__init__(parent)
         self.setObjectName("searchbar")
  
-        # //////////////////////////////////////////////////////////////////////////////////////////
-
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -23,6 +21,7 @@ class SearchBar(QFrame):
         self.search_input.addAction(search_icon, QLineEdit.ActionPosition.LeadingPosition)
 
         self.search_btn = QPushButton("Cari")
+        self.search_btn.setToolTip("Cari (Enter)")
         self.search_btn.setCursor(Qt.CursorShape.PointingHandCursor)
 
         layout.addWidget(self.search_input)
